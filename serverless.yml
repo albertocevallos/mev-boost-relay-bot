@@ -1,0 +1,84 @@
+service: mevboost-bot
+useDotenv: true
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  serverless-offline:
+    noPrependStageInUrl: true
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+  table:
+    BID_TRACE_DATA: ${self:custom.stage}-bid-trace
+
+package:
+  exclude:
+    - node_modules/serverless*/**
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 2048
+  stage: dev
+  region: us-east-1
+  iam:
+    role:
+      managedPolicies:
+        - arn:aws:iam::aws:policy/AWSLambda_FullAccess
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+  versionFunctions: false
+  apiGateway:
+    shouldStartNameWithService: true
+    minimumCompressionSize: 1024
+  environment:
+    # Table definitions
+    BID_TRACE_DATA: ${self:custom.table.BID_TRACE_DATA}
+    STAGE: ${self:custom.stage}
+    APP_KEY: ${env:APP_KEY}
+    APP_SECRET: ${env:APP_SECRET}
+    ACCESS_TOKEN: ${env:ACCESS_TOKEN}
+    ACCESS_SECRET: ${env:ACCESS_SECRET}
+
+resources:
+  Resources:
+    bidTraceTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.table.BID_TRACE_DATA}
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: "chain"
+            KeyType: "HASH"
+          - AttributeName: "block_hash"
+            KeyType: "RANGE"
+        AttributeDefinitions:
+          - AttributeName: "chain"
+            AttributeType: "S"
+          - AttributeName: "block_hash"
+            AttributeType: "S"
+
+functions:
+  scan:
+    handler: app/handler.scan
+    events:
+      - http:
+          path: scan
+          method: get
+      - schedule:
+          name: ${self:service}-${self:custom.stage}-scan
+          description: "Scans for large rewards and tweets"
+          rate: rate(1 minute)
+          enabled: true

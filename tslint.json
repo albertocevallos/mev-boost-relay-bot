@@ -1,0 +1,7 @@
+{
+  "extends": ["tslint-config-airbnb"],
+  "indent": [true, "tabs", 2],
+  "linterOptions": {
+    "exclude": [""]
+  }
+}
