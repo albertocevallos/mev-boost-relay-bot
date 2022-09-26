@@ -10,9 +10,9 @@ authorLink: 'https://github.com/albertocevallos'
 authorName: 'Alberto Cevallos'
 -->
 
-# Twitter Bot
+# MEV Boost Relay Bot
 
-This repo contains a simple bot for interacting with the Twitter v2 API. It is powered by AWS Lambda and Serverless framework.
+This repo contains a simple bot that polls for block rewards using  Flashbot's [relay api](http://boost-relay.flashbots.net)  interacting with the Twitter v2 API. It is powered by AWS Lambda and Serverless framework.
 
 ## Also supports
 
