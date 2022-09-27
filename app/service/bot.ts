@@ -4,7 +4,7 @@ import { intersection, difference } from "../utils/array";
 import { toTokenUnitsBN } from "../utils/bignumber";
 import { getDataMapper, BidTraceObject } from "../model";
 
-const LARGE_AMOUNT: number = 1e18;
+const LARGE_AMOUNT: number = 1.5e18;
 
 export class BotService {
   protected async findLargeRewards() {
@@ -61,12 +61,9 @@ export class BotService {
           // tweet
           if (item.value > LARGE_AMOUNT) {
             await rwClient.v2.tweet(
-              `🚨 Reward alert \n \n Value: Ξ${toTokenUnitsBN(
-                item.value,
-                18
-              ).toFixed(2)} \n https://etherscan.io/block/${
-                item.block_hash
-              } \n \n
+              `🚨 Reward alert \n \n Ξ${toTokenUnitsBN(item.value, 18).toFixed(
+                2
+              )} \n https://etherscan.io/block/${item.block_hash} \n \n
             `
             );
           } else {
@@ -75,7 +72,7 @@ export class BotService {
         })
       );
 
-      return { new: diff.length };
+      return { newCount: diff.length, results };
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log("error message: ", error.message);
