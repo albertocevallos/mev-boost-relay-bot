@@ -55,6 +55,7 @@ export class BotService {
               builder_pubkey: item.builder_pubkey,
               proposer_pubkey: item.proposer_pubkey,
               proposer_fee_recipient: item.proposer_fee_recipient,
+              slot: item.slot,
             })
           );
           results.push(result);
@@ -63,7 +64,7 @@ export class BotService {
             await rwClient.v2.tweet(
               `🚨 Reward alert \n \n Ξ${toTokenUnitsBN(item.value, 18).toFixed(
                 2
-              )} \n https://etherscan.io/block/${item.block_hash} \n \n
+              )} \n https://beaconscan.com/slot/${item.slot} \n \n
             `
             );
           } else {
