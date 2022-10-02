@@ -3,8 +3,9 @@ import axios from "axios";
 import { intersection, difference } from "../utils/array";
 import { toTokenUnitsBN } from "../utils/bignumber";
 import { getDataMapper, BidTraceObject } from "../model";
+import { shortenAddress } from "../utils";
 
-const LARGE_AMOUNT: number = 1.5e18;
+const LARGE_AMOUNT: number = 5e18;
 
 export class BotService {
   protected async findLargeRewards() {
@@ -59,12 +60,18 @@ export class BotService {
             })
           );
           results.push(result);
-          // tweet
+          // tweet if larger than LARGE_AMOUNT
           if (item.value > LARGE_AMOUNT) {
             await rwClient.v2.tweet(
-              `🚨 Reward alert \n \n Ξ${toTokenUnitsBN(item.value, 18).toFixed(
+              `🚨 Reward alert: ${toTokenUnitsBN(item.value, 18).toFixed(
                 2
-              )} \n https://beaconscan.com/slot/${item.slot} \n \n
+              )} ETH \n \n  \n Slot: ${
+                item.slot
+              } \n Validator: ${shortenAddress(
+                item.proposer_pubkey
+              )} \n Builder: ${shortenAddress(
+                item.builder_pubkey
+              )}  \n https://beaconscan.com/slot/${item.slot} \n \n
             `
             );
           } else {
